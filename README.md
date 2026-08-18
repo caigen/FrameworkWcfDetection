@@ -20,6 +20,12 @@ Start a new Copilot CLI session, then ask Copilot to check a project or invoke t
 /is-framework-wcf-project path/to/project.csproj
 ```
 
+To scan a repository, select the `find-framework-wcf-projects` agent or invoke its namespaced identifier from Copilot CLI. The agent uses one subagent to discover projects and a separate subagent to check each project:
+
+```powershell
+copilot --agent framework-wcf-detection:find-framework-wcf-projects -p "Scan path/to/repository for Framework WCF projects"
+```
+
 To receive a published update, run:
 
 ```powershell

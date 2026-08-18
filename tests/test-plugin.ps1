@@ -8,6 +8,7 @@ $marketplaceManifestPath = Join-Path $repositoryRoot "marketplace.json"
 foreach ($requiredPath in @(
     $pluginManifestPath,
     $marketplaceManifestPath,
+    (Join-Path $repositoryRoot "agents\find-framework-wcf-projects.agent.md"),
     (Join-Path $repositoryRoot "skills\is-framework-wcf-project\SKILL.md"),
     (Join-Path $repositoryRoot "skills\is-framework-wcf-project\scripts\is-framework-wcf-project.ps1"),
     (Join-Path $repositoryRoot "skills\is-framework-wcf-project\references\wcf-packages.json")
@@ -30,6 +31,20 @@ if ($plugin.version -notmatch '^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$') {
 $skillsPath = Join-Path $repositoryRoot $plugin.skills
 if (-not (Test-Path -LiteralPath $skillsPath -PathType Container)) {
     throw "Plugin skills directory does not exist: $skillsPath"
+}
+
+$agentsPath = Join-Path $repositoryRoot $plugin.agents
+if (-not (Test-Path -LiteralPath $agentsPath -PathType Container)) {
+    throw "Plugin agents directory does not exist: $agentsPath"
+}
+
+$agentPath = Join-Path $agentsPath "find-framework-wcf-projects.agent.md"
+$agentContent = Get-Content -LiteralPath $agentPath -Raw
+if ($agentContent -notmatch '(?m)^name: find-framework-wcf-projects\r?$') {
+    throw "Agent name must be 'find-framework-wcf-projects'."
+}
+if ($agentContent -notmatch '(?m)^tools: \[agent\]\r?$') {
+    throw "Agent must use the subagent orchestration tool."
 }
 
 $marketplacePlugins = @($marketplace.plugins | Where-Object { $_.name -eq $plugin.name })
