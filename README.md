@@ -1,6 +1,6 @@
-# Framework WCF Detection Plugin
+# Is Framework WCF Project Plugin
 
-A GitHub Copilot CLI plugin that detects .NET Framework WCF assembly references in one `.csproj` file or a directory of projects.
+A GitHub Copilot CLI plugin that determines whether one `.csproj` uses .NET Framework WCF assembly references.
 
 The detector follows the inventory in `wcf-detection-data/`: `System.ServiceModel` and its optional WCF assemblies are direct evidence, while general framework assemblies such as `System.Runtime.Serialization` are supporting evidence only.
 
@@ -17,7 +17,7 @@ copilot plugin list
 Start a new Copilot CLI session, then ask Copilot to check a project or invoke the skill directly:
 
 ```text
-/detect-framework-wcf path/to/project.csproj
+/is-framework-wcf-project path/to/project.csproj
 ```
 
 To receive a published update, run:
@@ -42,11 +42,10 @@ copilot plugin marketplace add ./
 copilot plugin install framework-wcf-detection@framework-wcf-plugins
 ```
 
-The deterministic detector can also run without Copilot:
+The deterministic detector can also run without Copilot. It accepts exactly one `.csproj` and emits one JSON object; callers are responsible for enumerating multiple projects:
 
 ```powershell
-./skills/detect-framework-wcf/scripts/detect-framework-wcf.ps1 -Path path/to/project.csproj
-./skills/detect-framework-wcf/scripts/detect-framework-wcf.ps1 -Path path/to/repository -Json
+./skills/is-framework-wcf-project/scripts/is-framework-wcf-project.ps1 -Csproj path/to/project.csproj
 ```
 
 ## Test
@@ -62,4 +61,4 @@ Before publishing a release, keep the `version` values in `plugin.json`, `market
 
 ## Scope
 
-This plugin detects framework assembly `<Reference>` items in .NET Framework projects. It intentionally does not classify modern `System.ServiceModel.*` NuGet clients or CoreWCF servers.
+This plugin checks one project per invocation for framework assembly `<Reference>` items. It intentionally does not classify modern `System.ServiceModel.*` NuGet clients or CoreWCF servers.

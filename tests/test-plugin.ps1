@@ -8,9 +8,9 @@ $marketplaceManifestPath = Join-Path $repositoryRoot "marketplace.json"
 foreach ($requiredPath in @(
     $pluginManifestPath,
     $marketplaceManifestPath,
-    (Join-Path $repositoryRoot "skills\detect-framework-wcf\SKILL.md"),
-    (Join-Path $repositoryRoot "skills\detect-framework-wcf\scripts\detect-framework-wcf.ps1"),
-    (Join-Path $repositoryRoot "skills\detect-framework-wcf\references\wcf-packages.json")
+    (Join-Path $repositoryRoot "skills\is-framework-wcf-project\SKILL.md"),
+    (Join-Path $repositoryRoot "skills\is-framework-wcf-project\scripts\is-framework-wcf-project.ps1"),
+    (Join-Path $repositoryRoot "skills\is-framework-wcf-project\references\wcf-packages.json")
 )) {
     if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
         throw "Required plugin file is missing: $requiredPath"

@@ -1,28 +1,61 @@
 $ErrorActionPreference = "Stop"
-$detector = Join-Path $PSScriptRoot "..\skills\detect-framework-wcf\scripts\detect-framework-wcf.ps1"
+$detector = Join-Path $PSScriptRoot "..\skills\is-framework-wcf-project\scripts\is-framework-wcf-project.ps1"
 $fixtures = Join-Path $PSScriptRoot "fixtures"
-$results = @(& $detector -Path $fixtures -Json | ConvertFrom-Json)
 
 $expected = @{
-    "framework-wcf.csproj" = $true
-    "framework-wcf-optional.csproj" = $true
-    "supporting-only.csproj" = $false
-    "modern-package.csproj" = $false
-}
-
-foreach ($result in $results) {
-    $name = Split-Path $result.project -Leaf
-    if (-not $expected.ContainsKey($name)) {
-        throw "Unexpected fixture result: $name"
+    "framework-wcf.csproj" = @{
+        result = $true
+        direct = @("System.ServiceModel")
+        supporting = @("System.Runtime.Serialization")
     }
-    if ($result.detected -ne $expected[$name]) {
-        throw "Expected $name detected=$($expected[$name]), got $($result.detected): $($result.reason)"
+    "framework-wcf-optional.csproj" = @{
+        result = $true
+        direct = @("System.ServiceModel.Web")
+        supporting = @()
     }
-    $expected.Remove($name)
+    "supporting-only.csproj" = @{
+        result = $false
+        direct = @()
+        supporting = @("System.Runtime.Serialization", "System.IdentityModel")
+    }
+    "modern-package.csproj" = @{
+        result = $false
+        direct = @()
+        supporting = @()
+    }
 }
 
-if ($expected.Count -gt 0) {
-    throw "Missing fixture results: $($expected.Keys -join ', ')"
+foreach ($name in $expected.Keys) {
+    $projectPath = Join-Path $fixtures $name
+    $result = & $detector -Csproj $projectPath | ConvertFrom-Json
+    $expectedResult = $expected[$name]
+
+    if ((Resolve-Path $result.csproj).Path -ne (Resolve-Path $projectPath).Path) {
+        throw "Expected csproj input '$projectPath', got '$($result.csproj)'."
+    }
+    if ($result.isFrameworkWcfProject -ne $expectedResult.result) {
+        throw "Expected $name isFrameworkWcfProject=$($expectedResult.result), got $($result.isFrameworkWcfProject)."
+    }
+
+    $direct = @($result.frameworkPackageEvidence.direct)
+    $supporting = @($result.frameworkPackageEvidence.supporting)
+    if (($direct -join ',') -ne ($expectedResult.direct -join ',')) {
+        throw "Unexpected direct evidence for ${name}: $($direct -join ', ')."
+    }
+    if (($supporting -join ',') -ne ($expectedResult.supporting -join ',')) {
+        throw "Unexpected supporting evidence for ${name}: $($supporting -join ', ')."
+    }
 }
 
-Write-Output "Detector tests passed ($($results.Count) fixtures)."
+$directoryRejected = $false
+try {
+    & $detector -Csproj $fixtures | Out-Null
+}
+catch {
+    $directoryRejected = $true
+}
+if (-not $directoryRejected) {
+    throw "Expected the detector to reject a directory input."
+}
+
+Write-Output "Detector tests passed ($($expected.Count) fixtures)."
