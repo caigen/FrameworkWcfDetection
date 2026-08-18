@@ -1,0 +1,8 @@
+Purpose:
+create one Github Copilot CLI plugin used for detecting if one csproj is using framework WCF
+
+Design:
+Use the data under wcf-detection-data folder, convert it to one Github Copilot CLI plugin
+
+Validate:
+The plugin should be able to distributed to others for re-using.

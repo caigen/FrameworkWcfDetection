@@ -1,0 +1,20 @@
+name: Test plugin
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test detector
+        shell: pwsh
+        run: ./tests/test-detector.ps1
+      - name: Test plugin packaging
+        shell: pwsh
+        run: ./tests/test-plugin.ps1

@@ -1,0 +1,9 @@
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.ServiceModel, Version=4.0.0.0, Culture=neutral" />
+    <Reference Include="System.Runtime.Serialization" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,6 @@
+{
+  "name": "framework-wcf-detection",
+  "description": "Detect .NET Framework projects that reference WCF framework assemblies.",
+  "version": "1.0.0",
+  "skills": "./skills"
+}

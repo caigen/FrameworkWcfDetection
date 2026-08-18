@@ -1,0 +1,18 @@
+{
+  "name": "framework-wcf-plugins",
+  "owner": {
+    "name": "Framework WCF Detection contributors"
+  },
+  "metadata": {
+    "description": "Copilot CLI plugins for detecting .NET Framework WCF usage.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "framework-wcf-detection",
+      "description": "Detect .NET Framework projects that reference WCF framework assemblies.",
+      "version": "1.0.0",
+      "source": "./"
+    }
+  ]
+}
