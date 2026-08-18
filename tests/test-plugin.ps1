@@ -9,6 +9,7 @@ foreach ($requiredPath in @(
     $pluginManifestPath,
     $marketplaceManifestPath,
     (Join-Path $repositoryRoot "agents\find-framework-wcf-projects.agent.md"),
+    (Join-Path $repositoryRoot "agents\scripts\find-csproj.ps1"),
     (Join-Path $repositoryRoot "skills\is-framework-wcf-project\SKILL.md"),
     (Join-Path $repositoryRoot "skills\is-framework-wcf-project\scripts\is-framework-wcf-project.ps1"),
     (Join-Path $repositoryRoot "skills\is-framework-wcf-project\references\wcf-packages.json")
@@ -43,8 +44,29 @@ $agentContent = Get-Content -LiteralPath $agentPath -Raw
 if ($agentContent -notmatch '(?m)^name: find-framework-wcf-projects\r?$') {
     throw "Agent name must be 'find-framework-wcf-projects'."
 }
-if ($agentContent -notmatch '(?m)^tools: \[agent\]\r?$') {
-    throw "Agent must use the subagent orchestration tool."
+if ($agentContent -notmatch '(?m)^tools: \[agent, shell\]\r?$') {
+    throw "Agent must use shell discovery and subagent orchestration tools."
+}
+if ($agentContent -notmatch 'agents/scripts/find-csproj\.ps1') {
+    throw "Agent must use the deterministic project discovery script."
+}
+if ($agentContent -match 'discovery subagent') {
+    throw "Agent must not delegate project discovery to a subagent."
+}
+
+$discoveryScript = Join-Path $repositoryRoot "agents\scripts\find-csproj.ps1"
+$fixtureRoot = Join-Path $repositoryRoot "tests\fixtures"
+$discoveredProjects = @(& $discoveryScript -ScanRoot $fixtureRoot | ConvertFrom-Json)
+$expectedProjects = @(
+    Get-ChildItem -LiteralPath $fixtureRoot -Filter "*.csproj" -File |
+        ForEach-Object { $_.FullName } |
+        Sort-Object
+)
+if (($discoveredProjects -join "`n") -cne ($expectedProjects -join "`n")) {
+    throw "Deterministic discovery did not return the expected sorted fixture projects."
+}
+if ($discoveredProjects | Where-Object { $_ -match '[\\/](bin|obj|\.git)[\\/]' }) {
+    throw "Deterministic discovery must exclude bin, obj, and .git directories."
 }
 
 $marketplacePlugins = @($marketplace.plugins | Where-Object { $_.name -eq $plugin.name })

@@ -1,20 +1,23 @@
 ---
 name: find-framework-wcf-projects
 description: Find all .csproj files under a path, delegate each project to a separate subagent for Framework WCF detection, and return aggregated JSON results. Use when asked to find, inventory, or scan Framework WCF projects in a repository or directory.
-tools: [agent]
+tools: [agent, shell]
 user-invocable: true
 disable-model-invocation: false
 ---
 
-You coordinate discovery and Framework WCF detection. All filesystem discovery and project checks must be performed by subagents.
+You coordinate deterministic discovery and subagent-based Framework WCF detection.
 
 ## Workflow
 
 1. Determine the scan root from the user's request. Use the current working directory when no path is supplied.
-2. Launch one discovery subagent. Instruct it to:
-   - find every `.csproj` file recursively under the scan root;
-   - exclude files under `bin`, `obj`, and `.git` directories;
-   - return a sorted JSON array of project paths and no additional prose.
+2. Run the bundled discovery script once from the project working directory. Do not use a subagent, globbing, or model reasoning to discover projects:
+
+  ```powershell
+  & "${COPILOT_PLUGIN_ROOT}/agents/scripts/find-csproj.ps1" -ScanRoot "<scan-root>"
+  ```
+
+  Parse its JSON array as the complete, ordered list of discovered project paths. If the command fails or its output is malformed, return the failure in `errors` and do not launch check subagents.
 3. For every discovered path, launch one separate check subagent. Launch independent checks in parallel when supported. Each check prompt must:
    - include exactly one `.csproj` path;
    - instruct the subagent to use the `is-framework-wcf-project` skill;
