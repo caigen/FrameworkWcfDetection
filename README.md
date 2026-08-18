@@ -6,10 +6,10 @@ The detector follows the inventory in `wcf-detection-data/`: `System.ServiceMode
 
 ## Install From GitHub
 
-GitHub Copilot CLI and Git are required. Replace `OWNER` with the GitHub account or organization that hosts this repository:
+GitHub Copilot CLI and Git are required. Run:
 
 ```powershell
-copilot plugin marketplace add OWNER/FrameworkWcfDetection
+copilot plugin marketplace add caigen/FrameworkWcfDetection
 copilot plugin install framework-wcf-detection@framework-wcf-plugins
 copilot plugin list
 ```
